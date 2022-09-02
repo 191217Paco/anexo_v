@@ -35,12 +35,12 @@ namespace _2act
                 "left join empleado e " +
                 "on rfcs.rfc = e.rfc";
 
-            string queryRfcs_Ec = "select rfcs.rfc, e.nombre, e.paterno, e.materno " +
+            string queryRfcs_Ec = "select rfcs.rfc, ec.cve_unica as curp " +
                 "from(select rfc from hist_cheque_cpto_c0 hcc left " +
                 "join nominas_timbrado nt " +
                 "on (hcc.qna_proc = nt.qna_proc) and(hcc.cons_qna_proc = nt.cons_qna_proc)) as rfcs " +
-                "left join empleado e " +
-                "on rfcs.rfc = e.rfc";
+                "left join empleado_curp as ec " +
+                "on rfcs.rfc = ec.rfc";
 
             string queryRfcs_Enss = "select rfcs.rfc, enss.numero_nss " +
                 "from(select rfc from hist_cheque_cpto_c0 hcc " +
@@ -55,19 +55,39 @@ namespace _2act
                 "on (hcc.qna_proc = nt.qna_proc) and(hcc.cons_qna_proc = nt.cons_qna_proc)) as rfcs " +
                 "left join pagos_especiales_curp as pec on rfcs.rfc = pec.rfc";
 
-            string[] listQuery = [queryPrincipalHccNt, queryRfcs_E, queryRfcs_Ec, queryRfcs_Enss, queryRfcs_Pec]; 
-
+            List<string> listQuery = new List<string>() { queryPrincipalHccNt, queryRfcs_E, queryRfcs_Ec, queryRfcs_Enss, queryRfcs_Pec };
+            AcoplamientoSentencias(queryPrincipalHccNt);
             Console.Read();
 
 
         }
 
 
-        public static void AcoplamientoSentencias(string[] listquery)
+        public static void AcoplamientoSentencias(string listquery)
         {
-            DataTable dt = EjecutarSentencia(listquery[0].ToString());
+            DataTable dt = EjecutarSentencia(listquery);
+            Console.WriteLine("Hay algo en el objecto datatable? " + dt.Rows);
+            /*
+            foreach (DataColumn column in dt.Columns)
+            {
+                Console.WriteLine(column.ColumnName);
+            }
+            */        
+            //dataGrid1.DataSource = table;
+
+
+            /*DataTable dt2 = EjecutarSentencia(listquery[0].ToString());
+            DataTable dt3 = EjecutarSentencia(listquery[0].ToString());
+            DataTable dt4 = EjecutarSentencia(listquery[0].ToString());
+            DataTable dt5 = EjecutarSentencia(listquery[0].ToString());
+            */
+
+
 
         }
+
+ 
+
 
 
 
@@ -238,13 +258,30 @@ namespace _2act
 
         public SqlConnection Coneccion()
         {
-            string stringConexion = "data source=winsql;initial catalog=consultalectura;user id=udiaz;password=servicio2022!";
-            connection = new SqlConnection(stringConexion);
+            StringBuilder errorMessages = new StringBuilder();
+            try
+            {
+                string stringConexion = "data source=URIEL/SQLEXPRESS;initial catalog=consultalectura;user id=sa;password=servicio2022!";
+                connection = new SqlConnection(stringConexion);
+            }
+            catch (SqlException ex)
+            {
+                for (int i = 0; i < ex.Errors.Count; i++)
+                {
+                    errorMessages.Append("Index #" + i + "\n" +
+                        "Message: " + ex.Errors[i].Message + "\n" +
+                        "Error Number: " + ex.Errors[i].Number + "\n" +
+                        "LineNumber: " + ex.Errors[i].LineNumber + "\n" +
+                        "Source: " + ex.Errors[i].Source + "\n" +
+                        "Procedure: " + ex.Errors[i].Procedure + "\n");
+                }
+            }
+            
             return connection;
         }
         public void Ejecutar(string sentencia)
         {
-            //Console.WriteLine("Entrando a ejecutar la query¡");
+            Console.WriteLine("Entrando a ejecutar la query¡");
             command = new SqlCommand(sentencia, connection);
         }
 

@@ -34,7 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="PLADSE.Servicios.API.RENAPO">
-      <HintPath>..\..\..\..\Documents\PLADSE.Servicios.API.RENAPO.dll</HintPath>
+      <HintPath>..\..\..\..\Documents\Entorno_P_P_C#\Recursos Infomatica\PLADSE.Servicios.API.RENAPO.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
