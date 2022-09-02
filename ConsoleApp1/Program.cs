@@ -15,18 +15,18 @@ namespace _2act
     {
         static void Main(string[] args)
         {
-            string queryPrincipalHccNt = "SELECT nt.idnomina, hcc.num_cheque, hcc.rfc, hcc.t_nomina, ((((right('00' + CONVERT([varchar](2), cod_pago, (0)), (2)) " +
+            string queryPrincipalHccNt = "SELECT nt.idnomina, HCC.num_cheque, HCC.rfc, HCC.t_nomina, ((((right('00' + CONVERT([varchar](2), cod_pago, (0)), (2)) " +
                 "+ right('00' + CONVERT([varchar](2), unidad, (0)), (2))) +right('00' + CONVERT([varchar](2), SubUnidad, (0)), (2))) " +
                 "+right('' + CONVERT([varchar](7), replace(cat_Puesto, ' ', ''), (0)),(7))) +right('000' + format(horas * 10, 'f0'), (3))) " +
-                "+right('000000' + CONVERT([varchar](6), cons_Plaza, (0)),(6)) as plaza, hcc.qna_pago as fecha_pago , " +
-                "hcc.qna_ini as fecha_inicio, hcc.qna_fin as fecha_termino, hcc.tot_perc_cheque as percepciones, " +
-                "hcc.tot_ded_cheque as deducciones, tot_neto_cheque as neto, " +
-                "(((right('00' + CONVERT([varchar](2), hcc.ent_fed, (0)), (2)) + CONVERT([varchar](4), hcc.ct_clasif, (0))) + CONVERT([varchar](4)," +
-                "hcc.ct_id,(0)))+right('0000' + CONVERT([varchar](4), hcc.ct_secuencial, (0)),(4)))+hcc.ct_digito_ver as 'cct', " +
-                "hcc.tipo_pago, cve_banco = '', hcc.mot_mov as motivo, nivel_cm = 'I', hcc.qna_proc, hcc.num_cheque, hcc.cheque_dv, " +
+                "+right('000000' + CONVERT([varchar](6), cons_Plaza, (0)),(6)) as plaza, HCC.qna_pago as fecha_pago , " +
+                "HCC.qna_ini as fecha_inicio, HCC.qna_fin as fecha_termino, HCC.tot_perc_cheque as percepciones, " +
+                "HCC.tot_ded_cheque as deducciones, tot_neto_cheque as neto, " +
+                "(((right('00' + CONVERT([varchar](2), HCC.ent_fed, (0)), (2)) + CONVERT([varchar](4), HCC.ct_clasif, (0))) + CONVERT([varchar](4)," +
+                "HCC.ct_id,(0)))+right('0000' + CONVERT([varchar](4), HCC.ct_secuencial, (0)),(4)))+HCC.ct_digito_ver as 'cct', " +
+                "HCC.tipo_pago, cve_banco = '', HCC.mot_mov as motivo, nivel_cm = 'I', HCC.qna_proc, HCC.num_cheque, HCC.cheque_dv, " +
                 "grupo = 'OT' + (right('00' + CONVERT([varchar](2), HCC.cons_qna_proc, (0)), (2))) " +
-                "FROM hist_cheque_cpto_c0 hcc left join nominas_timbrado nt" +
-                "on(hcc.qna_proc = nt.qna_proc) and(hcc.cons_qna_proc = nt.cons_qna_proc)";
+                "FROM hist_cheque_cpto_c0 HCC left join nominas_timbrado nt" +
+                "on(HCC.qna_proc = nt.qna_proc) and(HCC.cons_qna_proc = nt.cons_qna_proc)";
 
             string queryRfcs_E = "select rfcs.rfc, e.nombre, e.paterno, e.materno " +
                 "from(select rfc from hist_cheque_cpto_c0 hcc left " +
@@ -56,7 +56,9 @@ namespace _2act
                 "left join pagos_especiales_curp as pec on rfcs.rfc = pec.rfc";
 
             List<string> listQuery = new List<string>() { queryPrincipalHccNt, queryRfcs_E, queryRfcs_Ec, queryRfcs_Enss, queryRfcs_Pec };
-            AcoplamientoSentencias(queryPrincipalHccNt);
+
+            EjecutarSentencia(queryPrincipalHccNt);
+            //AcoplamientoSentencias(queryPrincipalHccNt);
             Console.Read();
 
 
@@ -65,8 +67,10 @@ namespace _2act
 
         public static void AcoplamientoSentencias(string listquery)
         {
-            DataTable dt = EjecutarSentencia(listquery);
-            Console.WriteLine("Hay algo en el objecto datatable? " + dt.Rows);
+            DataTable dt = new DataTable();
+            dt = EjecutarSentencia(listquery);
+            Console.WriteLine("Hay algo en el objecto datatable? " );
+            Console.Read();
             /*
             foreach (DataColumn column in dt.Columns)
             {
@@ -142,11 +146,12 @@ namespace _2act
             {
                 Conexion conn = new Conexion();
                 conn.Coneccion();
-                conn.getConnection().Open();
+                conn.GetConnection().Open();
                 //conn.getCommand().CommandTimeout = 6000;
                 conn.Ejecutar(sentencia);
                 SqlDataReader dr = conn.GetCommand().ExecuteReader();
-                Console.WriteLine();
+                Console.WriteLine("hay algo desde render ? " + dr.HasRows);
+                Console.Read();
                 if (dr.HasRows)
                 {
                     try
@@ -158,8 +163,10 @@ namespace _2act
                         Console.WriteLine(ex.GetType().Name + ":" + ex.Message);
                     }
                     dr.Close();
-                    conn.getConnection().Close();
+                    conn.GetConnection().Close();
                     conn.GetCommand().Dispose();
+                    Console.WriteLine(tabla.Rows.Count);
+                    Console.Read();
                     return tabla;
                 }
                 return tabla;
@@ -175,6 +182,7 @@ namespace _2act
                         "Source: " + ex.Errors[i].Source + "\n" +
                         "Procedure: " + ex.Errors[i].Procedure + "\n");
                 }
+                Console.WriteLine(errorMessages.ToString());
                 return null;
             }
         }
@@ -189,7 +197,7 @@ namespace _2act
                 string sentencia = "";
                 Conexion conn = new Conexion();
                 string valor;
-                conn.getConnection().Open();
+                conn.GetConnection().Open();
                 //comando.CommandTimeout = 6000;
                 conn.Ejecutar(sentencia);
                 SqlDataReader dr = conn.GetCommand().ExecuteReader();
@@ -223,7 +231,7 @@ namespace _2act
             Conexion conn = new Conexion();
 
             conn.Coneccion();
-            conn.getConnection().Open();
+            conn.GetConnection().Open();
 
             string query = "INSERT INTO [dbo].[anexo_v_pnr]" +
                 "([idanexo_v_pnr],[idnomina],[no_comprobante],[ur],[periodo],[tipo_nomina],[primer_apellido],[segundo_apellido],[nombres]," +
@@ -243,7 +251,7 @@ namespace _2act
                     dr = conn.GetCommand().ExecuteReader();
                     dr.Close();
                 }
-                conn.getConnection().Close();
+                conn.GetConnection().Close();
                 conn.GetCommand().Dispose();
             }
             return tableOK;
@@ -261,7 +269,8 @@ namespace _2act
             StringBuilder errorMessages = new StringBuilder();
             try
             {
-                string stringConexion = "data source=URIEL/SQLEXPRESS;initial catalog=consultalectura;user id=sa;password=servicio2022!";
+                string stringConexion = "data source=winsql;initial catalog=consultalectura;user id=udiaz;password=servicio2022!";
+                //string stringConexion = "data source=winsql;initial catalog=consultalectura;user id=udiaz;password=servicio2022!";
                 connection = new SqlConnection(stringConexion);
             }
             catch (SqlException ex)
@@ -275,23 +284,42 @@ namespace _2act
                         "Source: " + ex.Errors[i].Source + "\n" +
                         "Procedure: " + ex.Errors[i].Procedure + "\n");
                 }
+                Console.WriteLine(errorMessages.ToString());
             }
             
             return connection;
         }
         public void Ejecutar(string sentencia)
         {
-            Console.WriteLine("Entrando a ejecutar la query¡");
+            //Console.WriteLine("Todo bien ?");
             command = new SqlCommand(sentencia, connection);
         }
 
-        public SqlConnection getConnection() { return connection; }
+        public SqlConnection GetConnection() { return connection; }
 
         public SqlCommand GetCommand() { return command; }
 
         public void ConnOpen()
         {
-            connection.Open();
+            StringBuilder errorMessages = new StringBuilder();
+            try
+            {
+                connection.Open();
+            }
+            catch (SqlException ex)
+            {
+                for (int i = 0; i < ex.Errors.Count; i++)
+                {
+                    errorMessages.Append("Index #" + i + "\n" +
+                        "Message: " + ex.Errors[i].Message + "\n" +
+                        "Error Number: " + ex.Errors[i].Number + "\n" +
+                        "LineNumber: " + ex.Errors[i].LineNumber + "\n" +
+                        "Source: " + ex.Errors[i].Source + "\n" +
+                        "Procedure: " + ex.Errors[i].Procedure + "\n");
+                }
+                Console.WriteLine(errorMessages.ToString());
+            }
+            
         }
 
         public void ConnClose()
