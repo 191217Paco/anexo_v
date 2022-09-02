@@ -25,7 +25,7 @@ namespace _2act
                 "HCC.ct_id,(0)))+right('0000' + CONVERT([varchar](4), HCC.ct_secuencial, (0)),(4)))+HCC.ct_digito_ver as 'cct', " +
                 "HCC.tipo_pago, cve_banco = '', HCC.mot_mov as motivo, nivel_cm = 'I', HCC.qna_proc, HCC.num_cheque, HCC.cheque_dv, " +
                 "grupo = 'OT' + (right('00' + CONVERT([varchar](2), HCC.cons_qna_proc, (0)), (2))) " +
-                "FROM hist_cheque_cpto_c0 HCC left join nominas_timbrado nt" +
+                "FROM hist_cheque_cpto_c0 HCC left join nominas_timbrado nt " +
                 "on(HCC.qna_proc = nt.qna_proc) and(HCC.cons_qna_proc = nt.cons_qna_proc)";
 
             string queryRfcs_E = "select rfcs.rfc, e.nombre, e.paterno, e.materno " +
@@ -57,8 +57,7 @@ namespace _2act
 
             List<string> listQuery = new List<string>() { queryPrincipalHccNt, queryRfcs_E, queryRfcs_Ec, queryRfcs_Enss, queryRfcs_Pec };
 
-            EjecutarSentencia(queryPrincipalHccNt);
-            //AcoplamientoSentencias(queryPrincipalHccNt);
+            AcoplamientoSentencias(queryPrincipalHccNt);
             Console.Read();
 
 
@@ -69,7 +68,7 @@ namespace _2act
         {
             DataTable dt = new DataTable();
             dt = EjecutarSentencia(listquery);
-            Console.WriteLine("Hay algo en el objecto datatable? " );
+            Console.WriteLine("Hay algo en el objecto datatable? "+dt.Rows.Count);
             Console.Read();
             /*
             foreach (DataColumn column in dt.Columns)
@@ -150,8 +149,6 @@ namespace _2act
                 //conn.getCommand().CommandTimeout = 6000;
                 conn.Ejecutar(sentencia);
                 SqlDataReader dr = conn.GetCommand().ExecuteReader();
-                Console.WriteLine("hay algo desde render ? " + dr.HasRows);
-                Console.Read();
                 if (dr.HasRows)
                 {
                     try
@@ -165,8 +162,6 @@ namespace _2act
                     dr.Close();
                     conn.GetConnection().Close();
                     conn.GetCommand().Dispose();
-                    Console.WriteLine(tabla.Rows.Count);
-                    Console.Read();
                     return tabla;
                 }
                 return tabla;
