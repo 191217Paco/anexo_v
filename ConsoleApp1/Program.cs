@@ -57,21 +57,22 @@ namespace _2act
 
             List<string> listQuery = new List<string>() { queryPrincipalHccNt, queryRfcs_E, queryRfcs_Ec, queryRfcs_Enss, queryRfcs_Pec };
 
-            AcoplamientoSentencias(queryPrincipalHccNt);
+            AcoplamientoSentencias(listQuery);
             Console.Read();
 
 
         }
 
 
-        public static void AcoplamientoSentencias(string listquery)
+        public static void AcoplamientoSentencias(List<string> listquery)
         {
             DataTable dt = new DataTable();
-            dt = EjecutarSentencia(listquery);
+            dt = EjecutarSentencia(listquery[0]);
             
             foreach (DataRow row in dt.Rows)
             {
                 Console.WriteLine(row[0].ToString()+" "+row[1].ToString() + " " + row[2].ToString() + " " + row[3].ToString() + " " + row[4].ToString() + " " + row[5].ToString());
+                EjecutarSentencia(listquery[1]);
 
             }
             
