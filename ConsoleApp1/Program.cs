@@ -68,14 +68,13 @@ namespace _2act
         {
             DataTable dt = new DataTable();
             dt = EjecutarSentencia(listquery);
-            Console.WriteLine("Hay algo en el objecto datatable? "+dt.Rows.Count);
-            Console.Read();
-            /*
-            foreach (DataColumn column in dt.Columns)
+            
+            foreach (DataRow row in dt.Rows)
             {
-                Console.WriteLine(column.ColumnName);
+                Console.WriteLine(row[0].ToString()+" "+row[1].ToString() + " " + row[2].ToString() + " " + row[3].ToString() + " " + row[4].ToString() + " " + row[5].ToString());
+
             }
-            */        
+            
             //dataGrid1.DataSource = table;
 
 
