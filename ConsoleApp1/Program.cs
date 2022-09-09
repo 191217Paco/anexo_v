@@ -16,17 +16,17 @@ namespace _2act
         static void Main(string[] args)
         {
             string queryPrincipalHccNt = "SELECT nt.idnomina, HCC.num_cheque, HCC.rfc, HCC.t_nomina, ((((right('00' + CONVERT([varchar](2), cod_pago, (0)), (2)) " +
-                "+ right('00' + CONVERT([varchar](2), unidad, (0)), (2))) +right('00' + CONVERT([varchar](2), SubUnidad, (0)), (2))) " +
-                "+right('' + CONVERT([varchar](7), replace(cat_Puesto, ' ', ''), (0)),(7))) +right('000' + format(horas * 10, 'f0'), (3))) " +
-                "+right('000000' + CONVERT([varchar](6), cons_Plaza, (0)),(6)) as plaza, HCC.qna_pago as fecha_pago , " +
-                "HCC.qna_ini as fecha_inicio, HCC.qna_fin as fecha_termino, HCC.tot_perc_cheque as percepciones, " +
-                "HCC.tot_ded_cheque as deducciones, tot_neto_cheque as neto, " +
-                "(((right('00' + CONVERT([varchar](2), HCC.ent_fed, (0)), (2)) + CONVERT([varchar](4), HCC.ct_clasif, (0))) + CONVERT([varchar](4)," +
-                "HCC.ct_id,(0)))+right('0000' + CONVERT([varchar](4), HCC.ct_secuencial, (0)),(4)))+HCC.ct_digito_ver as 'cct', " +
-                "HCC.tipo_pago, cve_banco = '', HCC.mot_mov as motivo, nivel_cm = 'I', HCC.qna_proc, HCC.num_cheque, HCC.cheque_dv, " +
-                "grupo = 'OT' + (right('00' + CONVERT([varchar](2), HCC.cons_qna_proc, (0)), (2))) " +
-                "FROM hist_cheque_cpto_c0 HCC left join nominas_timbrado nt " +
-                "on(HCC.qna_proc = nt.qna_proc) and(HCC.cons_qna_proc = nt.cons_qna_proc)";
+                                        "+ right('00' + CONVERT([varchar](2), unidad, (0)), (2))) +right('00' + CONVERT([varchar](2), SubUnidad, (0)), (2))) " +
+                                        "+right('' + CONVERT([varchar](7), replace(cat_Puesto, ' ', ''), (0)),(7))) +right('000' + format(horas * 10, 'f0'), (3))) " +
+                                        "+right('000000' + CONVERT([varchar](6), cons_Plaza, (0)),(6)) as plaza, HCC.qna_pago as fecha_pago , " +
+                                        "HCC.qna_ini as fecha_inicio, HCC.qna_fin as fecha_termino, HCC.tot_perc_cheque as percepciones, " +
+                                        "HCC.tot_ded_cheque as deducciones, tot_neto_cheque as neto, " +
+                                        "(((right('00' + CONVERT([varchar](2), HCC.ent_fed, (0)), (2)) + CONVERT([varchar](4), HCC.ct_clasif, (0))) + CONVERT([varchar](4)," +
+                                        "HCC.ct_id,(0)))+right('0000' + CONVERT([varchar](4), HCC.ct_secuencial, (0)),(4)))+HCC.ct_digito_ver as 'cct', " +
+                                        "HCC.tipo_pago, cve_banco = '', HCC.mot_mov as motivo, nivel_cm = 'I', HCC.qna_proc, HCC.num_cheque, HCC.cheque_dv, " +
+                                        "grupo = 'OT' + (right('00' + CONVERT([varchar](2), HCC.cons_qna_proc, (0)), (2))) " +
+                                        "FROM hist_cheque_cpto_c0 HCC left join nominas_timbrado nt " +
+                                        "on(HCC.qna_proc = nt.qna_proc) and(HCC.cons_qna_proc = nt.cons_qna_proc)";
 
             string queryRfcs_E = "select rfcs.rfc, e.nombre, e.paterno, e.materno " +
                 "from(select rfc from hist_cheque_cpto_c0 hcc left " +
@@ -67,13 +67,65 @@ namespace _2act
         public static void AcoplamientoSentencias(List<string> listquery)
         {
             DataTable dt = new DataTable();
+            DataTable dtE = new DataTable();
+            DataTable dtEC = new DataTable();
+            DataTable dtEnss = new DataTable();
+            DataTable dtEec = new DataTable();
+
             dt = EjecutarSentencia(listquery[0]);
-            
+
             foreach (DataRow row in dt.Rows)
             {
-                Console.WriteLine(row[0].ToString()+" "+row[1].ToString() + " " + row[2].ToString() + " " + row[3].ToString() + " " + row[4].ToString() + " " + row[5].ToString());
-                EjecutarSentencia(listquery[1]);
+                Console.WriteLine("----------------------------------------------------------");
+                Console.WriteLine(row[0].ToString() + " " + row[1].ToString() + " " + row["rfc"].ToString() + " " + row[3].ToString() + " " + row[4].ToString() + " " + row[5].ToString());
+                string queryRfcs_E = "select e.rfc, e.nombre, e.paterno, e.materno " +
+                                     "from empleado e " +
+                                     "where '" + row["rfc"] + "' = e.rfc";
+        
+                dtE = EjecutarSentencia(queryRfcs_E);
+                if (dtE.Rows.Count == 0)
+                {
+                    string queryRfcs_Ps = "select distinct ps.rfc_sust, ps.nombre_sust, ps.paterno_sust, ps.materno_sust " +
+                        "from pagos_sustitutos ps " +
+                        "where '"+ row["rfc"] + "' = ps.rfc_sust    ";
 
+                    dtE = EjecutarSentencia(queryRfcs_Ps);
+                }
+                foreach (DataRow rowE in dtE.Rows)            
+                {
+                    Console.WriteLine(rowE[0].ToString() + " " + rowE[1].ToString() + " " + rowE[2].ToString() + " " + rowE[3].ToString());
+                }
+
+
+                string queryRfcs_Ec = "select ec.rfc, ec.cve_unica as curp " +
+                                      "from empleado_curp as ec " +
+                                      "where '" + row["rfc"] + "' = ec.rfc";            
+                dtEC = EjecutarSentencia(queryRfcs_Ec);
+                if (dtEC.Rows.Count == 0)
+                {                
+                    string queryRfcs_Eec = "select pec.rfc, pec.cve_unica as curp " +
+                                      "from pagos_especiales_curp as pec " +
+                                      "where '" + row["rfc"] + "' = pec.rfc";
+                    dtEC = EjecutarSentencia(queryRfcs_Eec);
+                    
+                }
+                foreach (DataRow rowEc in dtEC.Rows)
+                {
+                    Console.WriteLine(rowEc[0].ToString() + " " + rowEc[1].ToString());
+
+                }
+
+
+
+                string queryRfcs_Enss = "select enss.rfc, enss.numero_nss " +
+                                        "from empleado_nss as enss " +
+                                        "where '" + row["rfc"] + "' = enss.rfc";
+                dtEnss = EjecutarSentencia(queryRfcs_Enss);
+                foreach (DataRow rowEnss in dtEnss.Rows)
+                {
+                    Console.WriteLine(rowEnss[0].ToString() + " " + rowEnss[1].ToString());
+                }
+                Console.WriteLine("----------------------------------------------------------");
             }
             
             //dataGrid1.DataSource = table;
