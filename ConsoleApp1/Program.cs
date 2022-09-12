@@ -316,8 +316,8 @@ namespace _2act
             StringBuilder errorMessages = new StringBuilder();
             try
             {
-                string stringConexion = "data source=winsql;initial catalog=consultalectura;user id=udiaz;password=servicio2022!";
                 //string stringConexion = "data source=winsql;initial catalog=consultalectura;user id=udiaz;password=servicio2022!";
+                string stringConexion = "data source=localhost\\SQLEXPRESS;initial catalog=consultalectura;user id=sa;password=servicio2022!";
                 connection = new SqlConnection(stringConexion);
             }
             catch (SqlException ex)
