@@ -109,6 +109,13 @@ namespace _2act
                     dtEC = EjecutarSentencia(queryRfcs_Eec);
                     
                 }
+
+                if (!ConsultaCURP(dtEC[0]["rfc"]))
+
+                {
+                    EjecutarSentencia( )
+                }
+
                 foreach (DataRow rowEc in dtEC.Rows)
                 {
                     Console.WriteLine(rowEc[0].ToString() + " " + rowEc[1].ToString());
@@ -127,18 +134,7 @@ namespace _2act
                 }
                 Console.WriteLine("----------------------------------------------------------");
             }
-            
-            //dataGrid1.DataSource = table;
-
-
-            /*DataTable dt2 = EjecutarSentencia(listquery[0].ToString());
-            DataTable dt3 = EjecutarSentencia(listquery[0].ToString());
-            DataTable dt4 = EjecutarSentencia(listquery[0].ToString());
-            DataTable dt5 = EjecutarSentencia(listquery[0].ToString());
-            */
-
-
-
+            |
         }
 
  
