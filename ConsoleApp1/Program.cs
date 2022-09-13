@@ -37,19 +37,23 @@ namespace _2act
 
         }
 
-        public static DataTable FindCurp(DataTable dt, DataRow rowHcc)
+        public static (DataTable dtEC, DataRow rowHcc) FindCurp(DataTable dt, DataRow rowHcc)
         {
+            Console.WriteLine("Epa si fuiomos invocados");
             string queryRfcs_Ec = "select ec.rfc, ec.cve_unica as curp from empleado_curp as ec where '" + rowHcc["rfc"] + "' = ec.rfc";
             dt = EjecutarSentencia(queryRfcs_Ec);
             if (dt.Rows.Count == 0)
             {
+                Console.WriteLine("Epaaaa no encotramos nada en empleado_curp");
                 string queryRfcs_Eec = "select pec.rfc, pec.cve_unica as curp from pagos_especiales_curp as pec where '" + rowHcc["rfc"] + "' = pec.rfc";
                 dt = EjecutarSentencia(queryRfcs_Eec);
                 if (dt.Rows.Count == 0)
                 {
-                    DataTable  dtTemp = EjecutarSentencia("select rfc_nvo from cambio_rfc where rfc_anterior = '"+rowHcc["rfc"]+"'");
-                    if (dtTemp.Rows.Count >= 1 )
+                    Console.WriteLine("Epaaaaaaaaaaaaaaa tampoco encontramos en pagos especiales");
+                    DataTable dtTemp = EjecutarSentencia("select rfc_nvo from cambio_rfc where rfc_anterior = '" + rowHcc["rfc"] + "'");
+                    if (dtTemp.Rows.Count >= 1)
                     {
+                        Console.WriteLine("rfc actualizado : " + dtTemp.Rows[0][0].ToString());
                         rowHcc["rfc"] = dtTemp.Rows[0][0].ToString();
                         FindCurp(dt, rowHcc);
                     }
@@ -58,8 +62,7 @@ namespace _2act
 
             }
 
-
-            return null;
+            return (dt, rowHcc);
         }
 
         public static void AcoplamientoSentencias(List<string> listquery)
@@ -90,21 +93,12 @@ namespace _2act
                 Console.WriteLine("Datos de empleado");
                 foreach (DataRow rowE in dtE.Rows) { Console.WriteLine(rowE[0].ToString() + " " + rowE[1].ToString() + " " + rowE[2].ToString() + " " + rowE[3].ToString()); }
 
-                if (dtE.Rows.Count >=1)
-                {   
-                    string queryRfcs_Ec = "select ec.rfc, ec.cve_unica as curp from empleado_curp as ec where '" + rowHcc["rfc"] + "' = ec.rfc";
-                    dtEC = EjecutarSentencia(queryRfcs_Ec);
-                    if (dtEC.Rows.Count == 0)
-                    {
-                        string queryRfcs_Eec = "select pec.rfc, pec.cve_unica as curp from pagos_especiales_curp as pec where '" + rowHcc["rfc"] + "' = pec.rfc";
-                        dtEC = EjecutarSentencia(queryRfcs_Eec);
-                        if (dtEC.Rows.Count == 0)
-                        {
-                            
-                            
-                        }
-
-                    }
+                if (dtE.Rows.Count >= 1)
+                {
+                    var tupla = FindCurp(dtEC, rowHcc);
+                    dtEC   = tupla.dtEC;
+                    rowHcc["rfc"]  = tupla.rowHcc["rfc"];
+                    Console.WriteLine("Que sea lo que diso quiera XD " + rowHcc["rfc"].ToString());
                     Boolean result = CurpValida(dtEC.Rows[0]["rfc"].ToString()); 
 
                     if (!result)
