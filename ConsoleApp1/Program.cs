@@ -39,14 +39,14 @@ namespace _2act
 
         public static (DataTable dtEC, DataRow rowHcc) FindCurp(DataTable dtEC, DataRow rowHcc)
         {
-            Console.WriteLine("Epa si fuiomos invocados");
-            Console.WriteLine("rfc "+rowHcc["rfc"]);
+            //Console.WriteLine("Epa si fuiomos invocados");
+            //Console.WriteLine("rfc "+rowHcc["rfc"]);
             string queryRfcs_Ec = "select ec.rfc, ec.cve_unica as curp from empleado_curp as ec where '" + rowHcc["rfc"] + "' = ec.rfc";
             dtEC = EjecutarSentencia(queryRfcs_Ec);
-            Console.WriteLine(dtEC.Rows.Count);
+            //Console.WriteLine(dtEC.Rows.Count);
             if (dtEC.Rows.Count == 0)
             {
-                Console.WriteLine("Epaaaa no encotramos nada en empleado_curp");
+                //Console.WriteLine("Epaaaa no encotramos nada en empleado_curp");
                 string queryRfcs_Eec = "select pec.rfc, pec.cve_unica as curp from pagos_especiales_curp as pec where '" + rowHcc["rfc"] + "' = pec.rfc";
                 dtEC = EjecutarSentencia(queryRfcs_Eec);
                 if (dtEC.Rows.Count == 0)
@@ -82,11 +82,12 @@ namespace _2act
             DataTable dtEec = new DataTable();
 
             dtHcc = EjecutarSentencia(listquery[0]);
+            
 
             foreach (DataRow rowHcc in dtHcc.Rows)
             {
                 Console.WriteLine("----------------------------------------------------------");
-                Console.WriteLine(rowHcc[0].ToString() + " " + rowHcc[1].ToString() + " " + rowHcc["rfc"].ToString() + " " + rowHcc[3].ToString() + " " + rowHcc[4].ToString() + " " + rowHcc[5].ToString());
+                Console.WriteLine(rowHcc[0].ToString() + " " + rowHcc[1].ToString() + " " + rowHcc["rfc"].ToString() + " " + rowHcc[3].ToString() + " " + rowHcc[4].ToString() + " fecha pago " + rowHcc["qna_proc"].ToString());
                 string queryRfcs_E = "select e.rfc, e.nombre as nombres, e.paterno as primer_apellido, e.materno as segundo_apellido " +
                                      "from empleado e " +
                                      "where '" + rowHcc["rfc"] + "' = e.rfc";
@@ -122,19 +123,35 @@ namespace _2act
 
                     string queryRfcs_Enss = "select enss.rfc, enss.numero_nss as nss from empleado_nss as enss where '" + rowHcc["rfc"] + "' = enss.rfc";
                     dtEnss = EjecutarSentencia(queryRfcs_Enss);
-                    foreach (DataRow rowEnss in dtEnss.Rows)
+
+                    if (dtEnss.Rows.Count > 0)
                     {
-                        Console.WriteLine("Datos de seguro social");
-                        if (rowEnss["nss"].ToString().Length == 11)
+                        foreach (DataRow rowEnss in dtEnss.Rows)
                         {
-                            Console.WriteLine("tas mal mijooooooooooo");
-                            rowEnss[1] = "";
+                            Console.WriteLine("Datos de seguro social");
+                            if (rowEnss["nss"].ToString().Length == 11)
+                            {
+                                Console.WriteLine("tas mal mijooooooooooo");
+                                rowEnss[1] = "";
+                            }
+                            Console.WriteLine(rowEnss[0].ToString() + " " + rowEnss[1].ToString());
                         }
-                        Console.WriteLine(rowEnss[0].ToString() + " " + rowEnss[1].ToString());
                     }
+                    else
+                    {
+                        dtEnss.Columns.Add(new DataColumn("rfc")); rowHcc["rfc"].ToString();
+                        dtEnss.Columns.Add(new DataColumn("nss"));
+                        DataRow dtr = dtEnss.NewRow();
+                        dtr["rfc"] = rowHcc["rfc"];
+                        dtr["nss"] = "";
+                        dtEnss.Rows.Add(dtr);
+
+                    }
+
+                    
                     Console.WriteLine("----------------------------------------------------------");
 
-                    /*
+                    
                     string queryAnexo_V = "INSERT INTO [dbo].[anexo_v_pnr]" +
                         "([idanexo_v_pnr],[idnomina],[no_comprobante],[ur],[periodo],[tipo_nomina],[primer_apellido],[segundo_apellido],[nombres]," +
                         "[clave_plaza],[curp],[rfc],[fecha_pago],[fecha_inicio],[fecha_termino],[percepciones],[deducciones],[neto],[nss],[cct]," +
@@ -143,8 +160,8 @@ namespace _2act
                         "'"+ dtE.Rows[0]["nombres"].ToString() + "','"+rowHcc["plaza"].ToString()+"','"+dtEC.Rows[0]["curp"].ToString()+"','"+rowHcc["rfc"].ToString()+"','"+ rowHcc["fecha_pago"].ToString() + "'," +
                         "'"+ rowHcc["fecha_inicio"].ToString() + "','"+ rowHcc["fecha_termino"].ToString() + "',"+ rowHcc["percepciones"].ToString() + "," + rowHcc["deducciones"].ToString() + "," + rowHcc["neto"].ToString() + 
                         ",'"+dtEnss.Rows[0]["nss"].ToString()+ "','" + rowHcc["cct"].ToString() + "','" + rowHcc["forma_pago"].ToString() + "','','', '" + rowHcc["motivo"].ToString() + "','" + rowHcc["nivel_cm"].ToString() +
-                        "'," + rowHcc["qnac_proc"].ToString() + "," + rowHcc["cons_qna_proc"].ToString() + "," + rowHcc["num_cheque"].ToString() + ",'" + rowHcc["chaque_dev"].ToString() + "','" + rowHcc["grupo"].ToString() + "')";
-                    */
+                        "'," + rowHcc["qna_proc"].ToString() + "," + rowHcc["cons_qna_proc"].ToString() + "," + rowHcc["num_cheque"].ToString() + ",'" + rowHcc["cheque_dv"].ToString() + "','" + rowHcc["grupo"].ToString() + "')";
+                    
                 }
 
             }
