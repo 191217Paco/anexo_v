@@ -37,17 +37,19 @@ namespace _2act
 
         }
 
-        public static (DataTable dtEC, DataRow rowHcc) FindCurp(DataTable dt, DataRow rowHcc)
+        public static (DataTable dtEC, DataRow rowHcc) FindCurp(DataTable dtEC, DataRow rowHcc)
         {
             Console.WriteLine("Epa si fuiomos invocados");
+            Console.WriteLine("rfc "+rowHcc["rfc"]);
             string queryRfcs_Ec = "select ec.rfc, ec.cve_unica as curp from empleado_curp as ec where '" + rowHcc["rfc"] + "' = ec.rfc";
-            dt = EjecutarSentencia(queryRfcs_Ec);
-            if (dt.Rows.Count == 0)
+            dtEC = EjecutarSentencia(queryRfcs_Ec);
+            Console.WriteLine(dtEC.Rows.Count);
+            if (dtEC.Rows.Count == 0)
             {
                 Console.WriteLine("Epaaaa no encotramos nada en empleado_curp");
                 string queryRfcs_Eec = "select pec.rfc, pec.cve_unica as curp from pagos_especiales_curp as pec where '" + rowHcc["rfc"] + "' = pec.rfc";
-                dt = EjecutarSentencia(queryRfcs_Eec);
-                if (dt.Rows.Count == 0)
+                dtEC = EjecutarSentencia(queryRfcs_Eec);
+                if (dtEC.Rows.Count == 0)
                 {
                     Console.WriteLine("Epaaaaaaaaaaaaaaa tampoco encontramos en pagos especiales");
                     DataTable dtTemp = EjecutarSentencia("select rfc_nvo from cambio_rfc where rfc_anterior = '" + rowHcc["rfc"] + "'");
@@ -55,14 +57,20 @@ namespace _2act
                     {
                         Console.WriteLine("rfc actualizado : " + dtTemp.Rows[0][0].ToString());
                         rowHcc["rfc"] = dtTemp.Rows[0][0].ToString();
-                        FindCurp(dt, rowHcc);
+
+                        var tpl = FindCurp(dtEC, rowHcc);
+                        dtEC = tpl.dtEC;
+                        rowHcc = tpl.rowHcc;
+
+
+
                     }
 
                 }
 
             }
 
-            return (dt, rowHcc);
+            return (dtEC, rowHcc);
         }
 
         public static void AcoplamientoSentencias(List<string> listquery)
@@ -96,9 +104,11 @@ namespace _2act
                 if (dtE.Rows.Count >= 1)
                 {
                     var tupla = FindCurp(dtEC, rowHcc);
-                    dtEC   = tupla.dtEC;
+                
+                    dtEC = tupla.dtEC;
                     rowHcc["rfc"]  = tupla.rowHcc["rfc"];
-                    Console.WriteLine("Que sea lo que diso quiera XD " + rowHcc["rfc"].ToString());
+                    Console.WriteLine("Que sea lo que dios quiera XD " + rowHcc["rfc"].ToString());
+                    Console.WriteLine("que paso aca "+dtEC.Rows.Count);
                     Boolean result = CurpValida(dtEC.Rows[0]["rfc"].ToString()); 
 
                     if (!result)
@@ -141,8 +151,14 @@ namespace _2act
 
         }
 
- 
 
+
+
+     
+
+       
+
+   
 
 
 
