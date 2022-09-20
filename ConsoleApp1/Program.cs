@@ -134,15 +134,20 @@ namespace _2act
 
                     Console.WriteLine("num_perc y num_dec" + rowHcc["num_perc"] + "   " + rowHcc["num_desc"]);
                     int iterar = int.Parse(rowHcc["num_perc"].ToString()) + int.Parse(rowHcc["num_desc"].ToString());
-                    for (Int16 i = 1; i<= iterar; i++ )
+                    for (int i = 1; i<= iterar; i++ )
                     {
                         string queryInsA6 =  "INSERT INTO [dbo].[anexo_vi_pnr] ([idanexo_vi_pnr],[idnomina],[no_comprobante],[ur],[periodo],[tipo_nomina], [clave_plaza],[curp],[tipo_concepto],[cod_concepto],[desc_concepto]," +
                             "[importe],[base_calculo_isr],[observaciones],[conciliaciones],[ministracion],[consecutivo],[qna_proc],[cons_qna_proc],[grupo]) " +
                             "VALUES(newid(),"+rowHcc["idnomina"].ToString()+","+ rowHcc["no_comprobante"].ToString() + "," + rowHcc["ur"].ToString() + "," + periodo + "," + rowHcc["t_nomina"].ToString() + "," + rowHcc["plaza"].ToString() + ",'" + dtEC.Rows[0]["curp"].ToString() + "'," +
                             "<tipo_concepto, char (1),>,<cod_concepto, char (4),>,<desc_concepto, varchar(200),>,<importe, decimal (18,2),>,<base_calculo_isr, int,>,<observaciones, varchar(200),>,<conciliaciones, varchar(200),>,<ministracion, int,>," +
                             "<consecutivo, int,>,<qna_proc, int,>,<cons_qna_proc, smallint,>,<grupo, varchar(6),>)";
+                        string cifra = "" + i  ;
+                        string cifra2 = "" + cifra.PadLeft(2,'0');
 
-                        string queryCpto = " SELECT concepto, descripcion FROM ptda_concepto WHERE concepto = '"+rowHcc["concepto"+((i > 0) ? i : 0+i )+""]+"'";
+
+                        Console.WriteLine("vuelta : "+cifra2);
+                        string queryCpto = " SELECT concepto, descripcion FROM ptda_concepto WHERE concepto = '"+rowHcc["concepto"+cifra2]+"'";
+                        Console.WriteLine(queryCpto);
                     }
                     
                 }
