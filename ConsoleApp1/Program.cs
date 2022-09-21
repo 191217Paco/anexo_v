@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ConsultaCURP = PLADSE.Servicios.API.RENAPO.ConsultaCURP;
+using System.Globalization;
 
 namespace _2act
 {
@@ -52,7 +53,7 @@ namespace _2act
 
             foreach (DataRow rowHcc in dtHcc.Rows)
             {
-                Console.WriteLine("----------------------------------------------------------");
+                //Console.WriteLine("----------------------------------------------------------");
                 Console.WriteLine(rowHcc[0].ToString() + " " + rowHcc[1].ToString() + " " + rowHcc["rfc"].ToString() + " " + rowHcc[3].ToString() + " " + rowHcc[4].ToString() + " fecha pago " + rowHcc["qna_proc"].ToString());
                 string queryRfcs_E = "select e.rfc, e.nombre as nombres, e.paterno as primer_apellido, e.materno as segundo_apellido " +
                                      "from empleado e " +
@@ -65,8 +66,8 @@ namespace _2act
                     dtE = EjecutarSentencia(queryRfcs_Ps);
                     
                 }
-                Console.WriteLine("Datos de empleado");
-                foreach (DataRow rowE in dtE.Rows) { Console.WriteLine(rowE[0].ToString() + " " + rowE[1].ToString() + " " + rowE[2].ToString() + " " + rowE[3].ToString()); }
+                //Console.WriteLine("Datos de empleado");
+                //foreach (DataRow rowE in dtE.Rows) { Console.WriteLine(rowE[0].ToString() + " " + rowE[1].ToString() + " " + rowE[2].ToString() + " " + rowE[3].ToString()); }
 
                 if (dtE.Rows.Count >= 1)
                 {
@@ -74,8 +75,8 @@ namespace _2act
 
                     dtEC = tupla.dtEC;
                     rowHcc["rfc"] = tupla.rowHcc["rfc"];
-                    Console.WriteLine("Que sea lo que dios quiera XD " + rowHcc["rfc"].ToString());
-                    Console.WriteLine("que paso aca " + dtEC.Rows.Count);
+                    //Console.WriteLine("Que sea lo que dios quiera XD " + rowHcc["rfc"].ToString());
+                    //Console.WriteLine("que paso aca " + dtEC.Rows.Count);
                     Boolean result = CurpValida(dtEC.Rows[0]["curp"].ToString());
 
                     if (!result)
@@ -86,8 +87,8 @@ namespace _2act
                             "VALUES( newid(),'" + dtEC.Rows[0]["rfc"] + "','" + dtEC.Rows[0]["curp"] + "','" + dtE.Rows[0]["nombres"] + "'," + dtHcc.Rows[0]["qna_proc"] + "," + dtHcc.Rows[0]["cons_qna_proc"] + ") END";
                         EjecutarSentencia(queryInsertInvalidCurp);
                     }
-                    Console.WriteLine("Datos de empleados curps");
-                    foreach (DataRow rowEc in dtEC.Rows) { Console.WriteLine(rowEc[0].ToString() + " " + rowEc[1].ToString()); }
+                    //Console.WriteLine("Datos de empleados curps");
+                   // foreach (DataRow rowEc in dtEC.Rows) { Console.WriteLine(rowEc[0].ToString() + " " + rowEc[1].ToString()); }
 
                     string queryRfcs_Enss = "select enss.rfc, enss.numero_nss as nss from empleado_nss as enss where '" + rowHcc["rfc"] + "' = enss.rfc";
                     dtEnss = EjecutarSentencia(queryRfcs_Enss);
@@ -96,13 +97,13 @@ namespace _2act
                     {
                         foreach (DataRow rowEnss in dtEnss.Rows)
                         {
-                            Console.WriteLine("Datos de seguro social");
+                            //Console.WriteLine("Datos de seguro social");
                             if (rowEnss["nss"].ToString().Length == 11)
                             {
-                                Console.WriteLine("tas mal mijooooooooooo");
+                                //Console.WriteLine("tas mal mijooooooooooo");
                                 rowEnss[1] = "";
                             }
-                            Console.WriteLine(rowEnss[0].ToString() + " " + rowEnss[1].ToString());
+                            //Console.WriteLine(rowEnss[0].ToString() + " " + rowEnss[1].ToString());
                         }
                     }
                     else
@@ -117,38 +118,43 @@ namespace _2act
                     }
 
 
-                    Console.WriteLine("----------------------------------------------------------");
+                    //Console.WriteLine("----------------------------------------------------------");
                     string periodo = AcomodaPeriodo(rowHcc["qna_proc"].ToString());
 
-                    /*
+                    
                     string queryAnexo_V = "INSERT INTO [dbo].[anexo_v_pnr]" +
                         "([idanexo_v_pnr],[idnomina],[no_comprobante],[ur],[periodo],[tipo_nomina],[primer_apellido],[segundo_apellido],[nombres]," +
                         "[clave_plaza],[curp],[rfc],[fecha_pago],[fecha_inicio],[fecha_termino],[percepciones],[deducciones],[neto],[nss],[cct]," +
                         "[forma_pago],[cve_banco],[clabe],[motivo],[nivel_cm],[qna_proc],[cons_qna_proc],[num_cheque],[cheque_dv],[grupo])" +
-                        "VALUES( newid(),"+rowHcc["idnomina"].ToString()+","+rowHcc["no_comprobante"].ToString() +","+rowHcc["ur"].ToString() +", '"+periodo+"', 'O','"+dtE.Rows[0]["primer_apellido"].ToString() +"','"+ dtE.Rows[0]["segundo_apellido"].ToString() + "', " +
+                        "VALUES( newid(),'"+rowHcc["idnomina"].ToString()+"','"+rowHcc["no_comprobante"].ToString() +"','"+rowHcc["ur"].ToString() +"', '"+periodo+"', 'O','"+dtE.Rows[0]["primer_apellido"].ToString() +"','"+ dtE.Rows[0]["segundo_apellido"].ToString() + "', " +
                         "'"+ dtE.Rows[0]["nombres"].ToString() + "','"+rowHcc["plaza"].ToString()+"','"+dtEC.Rows[0]["curp"].ToString()+"','"+rowHcc["rfc"].ToString()+"','"+ QuincenaToFecha(Int32.Parse(rowHcc["fecha_pago"].ToString())) + "'," +
-                        "'"+ rowHcc["fecha_inicio"].ToString() + "','"+ rowHcc["fecha_termino"].ToString() + "',"+ rowHcc["percepciones"].ToString() + "," + rowHcc["deducciones"].ToString() + "," + rowHcc["neto"].ToString() + 
+                        "'"+ rowHcc["fecha_inicio"].ToString() + "','"+ rowHcc["fecha_termino"].ToString() + "',"+ rowHcc["percepciones"] + "," + rowHcc["deducciones"].ToString() + "," + rowHcc["neto"].ToString() + 
                         ",'"+dtEnss.Rows[0]["nss"].ToString()+ "','" + rowHcc["cct"].ToString() + "','" + rowHcc["forma_pago"].ToString() + "','','', '" + rowHcc["motivo"].ToString() + "','" + rowHcc["nivel_cm"].ToString() +
                         "'," + rowHcc["qna_proc"].ToString() + "," + rowHcc["cons_qna_proc"].ToString() + "," + rowHcc["num_cheque"].ToString() + ",'" + rowHcc["cheque_dv"].ToString() + "','" + rowHcc["grupo"].ToString() + "')";
-                    */
+                    //Console.WriteLine(queryAnexo_V);
+                    EjecutarSentencia(queryAnexo_V);
 
-                    Console.WriteLine("num_perc y num_dec" + rowHcc["num_perc"] + "   " + rowHcc["num_desc"]);
+                    //Console.WriteLine("num_perc y num_dec" + rowHcc["num_perc"] + "   " + rowHcc["num_desc"]);
                     int iterar = int.Parse(rowHcc["num_perc"].ToString()) + int.Parse(rowHcc["num_desc"].ToString());
-                    for (int i = 1; i<= iterar; i++ )
+                    for (int i = 1; i <= iterar; i++)
                     {
-                        string queryInsA6 =  "INSERT INTO [dbo].[anexo_vi_pnr] ([idanexo_vi_pnr],[idnomina],[no_comprobante],[ur],[periodo],[tipo_nomina], [clave_plaza],[curp],[tipo_concepto],[cod_concepto],[desc_concepto]," +
+
+                        string cifra = "" + i;
+                        string cifra2 = "" + cifra.PadLeft(2, '0');
+                        string queryCpto = " SELECT perc_ded, concepto, descripcion FROM ptda_concepto WHERE concepto = '" + rowHcc["concepto" + cifra2] + "'";
+
+                        DataTable dtCpto = EjecutarSentencia(queryCpto);
+                        string queryInsA6 = "INSERT INTO [dbo].[anexo_vi_pnr] ([idanexo_vi_pnr],[idnomina],[no_comprobante],[ur],[periodo],[tipo_nomina], [clave_plaza],[curp],[tipo_concepto],[cod_concepto],[desc_concepto]," +
                             "[importe],[base_calculo_isr],[observaciones],[conciliaciones],[ministracion],[consecutivo],[qna_proc],[cons_qna_proc],[grupo]) " +
-                            "VALUES(newid(),"+rowHcc["idnomina"].ToString()+","+ rowHcc["no_comprobante"].ToString() + "," + rowHcc["ur"].ToString() + "," + periodo + "," + rowHcc["t_nomina"].ToString() + "," + rowHcc["plaza"].ToString() + ",'" + dtEC.Rows[0]["curp"].ToString() + "'," +
-                            "<tipo_concepto, char (1),>,<cod_concepto, char (4),>,<desc_concepto, varchar(200),>,<importe, decimal (18,2),>,<base_calculo_isr, int,>,<observaciones, varchar(200),>,<conciliaciones, varchar(200),>,<ministracion, int,>," +
-                            "<consecutivo, int,>,<qna_proc, int,>,<cons_qna_proc, smallint,>,<grupo, varchar(6),>)";
-                        string cifra = "" + i  ;
-                        string cifra2 = "" + cifra.PadLeft(2,'0');
-
-
-                        Console.WriteLine("vuelta : "+cifra2);
-                        string queryCpto = " SELECT concepto, descripcion FROM ptda_concepto WHERE concepto = '"+rowHcc["concepto"+cifra2]+"'";
-                        Console.WriteLine(queryCpto);
+                            "VALUES(newid(),'" + rowHcc["idnomina"].ToString() + "','" + rowHcc["no_comprobante"].ToString() + "','" + rowHcc["ur"].ToString() + "','" + periodo + "','" + rowHcc["t_nomina"].ToString() + "','" + rowHcc["plaza"].ToString() + "','" + dtEC.Rows[0]["curp"].ToString() + "'," +
+                            "'" + dtCpto.Rows[0]["perc_ded"] + "','" + dtCpto.Rows[0]["concepto"] + "','" + dtCpto.Rows[0]["descripcion"] + "'," + rowHcc["importe" + cifra2] + ",'" + Cpto_gravables(dtCpto.Rows[0]["concepto"].ToString()) + "','','',null," +
+                            "null," + rowHcc["qna_proc"] + "," + rowHcc["cons_qna_proc"] + ",'" + rowHcc["grupo"].ToString() + "')";
+                        //Console.WriteLine(queryInsA6);
+                        EjecutarSentencia(queryInsA6);
                     }
+
+
+                    
                     
                 }
 
@@ -157,6 +163,46 @@ namespace _2act
         }
 
 
+        public static int Cpto_gravables(string cod_concepto)
+        {
+            int base_calculo_isr = 0;
+            DataTable ref_x_cpto = null/* TODO Change to default(_) if this is not a reference type */;
+            char[] arraycptoAPQ = new char[] { 'A', 'P', 'Q' };
+            List<string> Ax = new List<string>();
+            foreach (char element in arraycptoAPQ)
+            {
+                for (int x = 65; x <= 90; x++)
+                    Ax.Add(string.Format("{0}{1}", element, Convert.ToChar(x)));
+            }
+
+            char[] arraycptoAQ = new char[] { 'A', 'Q' };
+            // Dim Ax As List(Of String) = New List(Of String)
+            foreach (char element in arraycptoAQ)
+            {
+                for (int x = 1; x <= 5; x++)
+                    Ax.Add(string.Format("{0}{1}", element, x));
+            }
+            //ref_x_cpto = dbfone.ExtraeTabla("select * from ref_x_cptos where perc_ded='D' and concepto='01' and qna_fin=999999 and concepto_rel not like \"%n\" and concepto_rel not like \"%x\"");
+            ref_x_cpto = EjecutarSentencia("select * from ref_x_cptos where perc_ded='D' and concepto='01' and qna_fin=999999 and concepto_rel not like '%n' and concepto_rel not like '%x'");
+            if (ref_x_cpto != null & ref_x_cpto != null)
+            {
+                if (ref_x_cpto.Rows.Count > 0)
+                {
+                    foreach (DataRow cpto in ref_x_cpto.Rows)
+                        Ax.Add(cpto["concepto_rel"].ToString());
+                }
+            }
+            Ax.Add("63B");
+            Ax.Add("65B");
+            Ax.Add("66B");
+            Ax.Add("67B");
+            Ax.Add("69B");
+            if ((Ax.IndexOf(cod_concepto.ToString().TrimEnd(' ')) > -1))
+            {
+                base_calculo_isr = 1;
+            }
+            return base_calculo_isr;
+        }
 
 
         public static (DataTable dtEC, DataRow rowHcc) FindCurp(DataTable dtEC, DataRow rowHcc)
@@ -200,12 +246,12 @@ namespace _2act
         {
             string years = str.Substring(0, 4);
             string qna = str.Substring(4, 2);
-            Console.WriteLine("periodo " + str);
-            Console.WriteLine("años " + years);
-            Console.WriteLine("quincena " + qna);
+            //Console.WriteLine("periodo " + str);
+            //Console.WriteLine("años " + years);
+            //Console.WriteLine("quincena " + qna);
 
             string periodo = qna + years;
-            Console.WriteLine("periodoOK " + periodo);
+            //Console.WriteLine("periodoOK " + periodo);
             return periodo;
         }
 
@@ -241,17 +287,22 @@ namespace _2act
         }
 
 
-
-        private static DateTime QuincenaToFecha(Int32 anioquincena)
+        private static string QuincenaToFecha(Int32 anioquincena)
         {
             int qna = anioquincena % 100;
             int anio = System.Convert.ToInt32(anioquincena) / 100;
             int mes = System.Convert.ToInt32(qna / 2) + qna % 2;
             int dia = qna % 2 == 0 ? DateTime.DaysInMonth(anio, mes) : 15;
 
-            // Dim dia As Integer = IIf((qna Mod 2) = 0, Date.DaysInMonth(anio, mes), 15)
+               
             string result = String.Format("{0}/{1}/{2}", dia, mes, anio);
-            return Convert.ToDateTime(result);
+
+
+            DateTime dateTime = DateTime.Parse(result);
+
+
+
+            return result;
         }
 
 
